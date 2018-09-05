@@ -1,39 +1,31 @@
 import React, { Component } from "react";
-import { DropTarget } from "react-dnd";
-import { ItemTypes } from "./constants";
+import { Droppable as NativeDroppable } from "react-beautiful-dnd";
 
-const dropTarget = {
-  drop(props, monitor) {
-    return { droppableId: props.droppableId };
-  }
-};
+const grid = 8;
 
-const collect = (connect, monitor) => {
-  return {
-    connectDropTarget: connect.dropTarget()
-  };
-};
+const getListStyle = isDraggingOver => ({
+  background: isDraggingOver ? "lightblue" : "lightgrey",
+  padding: grid,
+  width: 250,
+  minHeight: 250,
+  float: "left"
+});
 
 class Droppable extends Component {
   render() {
-    const { children, connectDropTarget } = this.props;
-    return connectDropTarget(
-      <div>
-        <div
-          style={{
-            margin: 15,
-            width: 200,
-            minHeight: 100,
-            backgroundColor: "red",
-            padding: 15,
-            float: "left"
-          }}
-        >
-          {children}
-        </div>
-      </div>
+    const { children, filter } = this.props;
+
+    return (
+      <NativeDroppable droppableId={filter.toString()}>
+        {({ innerRef, placeholder, isDraggingOver }) => (
+          <div ref={innerRef} style={getListStyle(isDraggingOver)}>
+            {children}
+            {placeholder}
+          </div>
+        )}
+      </NativeDroppable>
     );
   }
 }
 
-export default DropTarget(ItemTypes.THING, dropTarget, collect)(Droppable);
+export default Droppable;

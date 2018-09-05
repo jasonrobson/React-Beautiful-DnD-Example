@@ -30,17 +30,12 @@ class Lists extends Component {
     return (
       <DragDropProvider>
         <DragDropConsumer>
-          {({ items, onUpdateItem }) => {
-            const filters = getFilters(items);
-            const filteredItems = getFilteredItems(filters, items);
-            return filteredItems.map((v, i) => (
-              <Droppable key={v.filter} droppableId={v.filter}>
-                {v.items.map(item => (
-                  <Draggable
-                    key={item.id}
-                    onUpdateItem={onUpdateItem}
-                    item={item}
-                  />
+          {({ getOrderByFilter, draggables }) => {
+            const filters = getFilters(draggables);
+            return filters.map(filter => (
+              <Droppable key={filter} filter={filter}>
+                {getOrderByFilter(filter).map((item, index) => (
+                  <Draggable key={item.id} item={item} index={index} />
                 ))}
               </Droppable>
             ));

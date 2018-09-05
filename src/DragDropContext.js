@@ -1,4 +1,6 @@
 import React, { Component, createContext } from "react";
+import { DragDropContext } from "react-beautiful-dnd";
+import _ from "lodash";
 
 const getRandomInt = (min, max) => {
   min = Math.ceil(min);
@@ -19,35 +21,57 @@ const getItems = quantity => {
 };
 
 const Context = createContext({
-  items: [],
-  onUpdateItem: () => {}
+  draggables: [],
+  getOrderByFilter: () => {}
 });
 
 export class DragDropProvider extends Component {
   state = {
-    items: getItems(1200),
-    onUpdateItem: this.onUpdateItem
+    draggables: getItems(1000),
+    getOrderByFilter: this.getOrderByFilter
   };
 
-  onUpdateItem = itemModified => {
-    const newArray = this.state.items.map(currentItem => {
-      if (currentItem.id !== itemModified.id) {
-        return currentItem;
-      }
+  getOrderByFilter = filter =>
+    _.groupBy(this.state.draggables, "filter")[filter] || [];
 
-      return itemModified;
+  updateDraggable = draggable =>
+    this.setState(({ draggables }) => ({
+      draggables: draggables.map(currentDraggable => {
+        if (currentDraggable.id === draggable.id) {
+          return _.merge(currentDraggable, draggable);
+        }
+
+        return currentDraggable;
+      })
+    }));
+
+  onDragEnd = result => {
+    const { source, destination } = result;
+
+    if (!destination || source.droppableId === destination.droppableId) {
+      return;
+    }
+
+    const sourceFilter = +source.droppableId;
+    const destinationFilter = +destination.droppableId;
+
+    const draggable = this.getOrderByFilter(sourceFilter)[source.index];
+
+    this.updateDraggable({
+      ...draggable,
+      filter: destinationFilter
     });
-
-    this.setState({ items: newArray });
   };
 
   render() {
     const value = {
       ...this.state,
-      onUpdateItem: this.onUpdateItem
+      getOrderByFilter: this.getOrderByFilter
     };
     return (
-      <Context.Provider value={value}>{this.props.children}</Context.Provider>
+      <DragDropContext onDragEnd={this.onDragEnd}>
+        <Context.Provider value={value}>{this.props.children}</Context.Provider>
+      </DragDropContext>
     );
   }
 }
