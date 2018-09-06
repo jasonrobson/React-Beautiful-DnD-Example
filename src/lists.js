@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, PureComponent } from "react";
 import _ from "lodash";
 import Droppable from "./dropzone";
 import Draggable from "./draggable";
@@ -34,15 +34,21 @@ class Lists extends Component {
             const filters = getFilters(draggables);
             return filters.map(filter => (
               <Droppable key={filter} filter={filter}>
-                {getOrderByFilter(filter).map((item, index) => (
-                  <Draggable key={item.id} item={item} index={index} />
-                ))}
+                <Draggables draggables={getOrderByFilter(filter)} />
               </Droppable>
             ));
           }}
         </DragDropConsumer>
       </DragDropProvider>
     );
+  }
+}
+
+class Draggables extends PureComponent {
+  render() {
+    return this.props.draggables.map((dragItem, index) => (
+      <Draggable key={dragItem.id} item={dragItem} index={index} />
+    ));
   }
 }
 

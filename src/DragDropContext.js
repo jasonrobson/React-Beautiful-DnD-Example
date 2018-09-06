@@ -27,7 +27,7 @@ const Context = createContext({
 
 export class DragDropProvider extends Component {
   state = {
-    draggables: getItems(1000),
+    draggables: getItems(500),
     getOrderByFilter: this.getOrderByFilter
   };
 
